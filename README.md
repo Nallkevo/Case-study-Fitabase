@@ -92,6 +92,69 @@ weightLogInfo_merged <- read_csv("C:\\Users\\Kevon\\Downloads\\mturkfitbit_expor
   colnames(weightLogInfo_merged)
 ```
 ![Dailyactivitydata](https://github.com/Nallkevo/Case-study-Fitabase/blob/main/Screenshot%202024-11-18%20071253.png)
+![colnamesweight](https://github.com/Nallkevo/Case-study-Fitabase/blob/main/Screenshot%202024-11-18%20072710.png)
+```
+skim_without_charts(daily_activity_data)
+skim_without_charts(weightLoginInfo_merged)
+```
+# Clean names 
+```
+clean_names(daily_activity_data)
+Clean_names(weightLoginInfo_merged)
+```
+# Get summary statistics
+```
+summary(daily_activity_data)
+summary(weightLoginInfo_merged)
+```
+# Check data structure (e.g., types of variables)
+```
+str(daily_activity_data)
+str(weightLoginInfo_merged)
+```
+# Remove rows with NA values
+```
+data_clean<- na.omit(daily_activity_data)
+data_clean <-na.omit(weightLoginInfo_merged)
+
+```
+# Replace NA with mean for numeric columns and "Unknown" for categorical columns
+```
+data_clean <- daily_activity_data %>%
+  mutate(across(
+    where(is.numeric), 
+    ~ifelse(is.na(.), mean(., na.rm = TRUE), .)
+```
+
+# Replace NA with mean for numeric columns
+# Replace NA with "Unknown" for character columns (if any)
+  
+```
+  )) %>%
+  mutate(across(
+    where(is.character), 
+    ~ifelse(is.na(.), "Unknown", .)))
+```
+
+
+# Remove rows with any remaining missing values
+```
+data_clean <- data_clean %>%
+  drop()
+```
+
+# Show cleaned data
+```
+head(data_clean)
+data_clean <- daily_activity_data %>%
+  mutate(Id= ifelse(is.na(Id), median(Id, na.rm = TRUE), Id))
+# Remove duplicate rows
+data_clean <- data_clean %>%
+  distinct()
+```
+
+
+
 
   
 
