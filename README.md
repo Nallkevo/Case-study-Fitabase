@@ -61,24 +61,39 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 library(janitor)
+library("here")
+library("skimr")
 ```
 
 ## Step 3: Process 
 [Back to top](#introduction)
 ### Importing the datasets
 # Set the file path
+```
 file_path <- "C:/Users/Kevon/Downloads/mturkfitbit_export_3.12.16-4.11.16/Fitabase Data 3.12.16-4.11.16/dailyActivity_merged.csv"
 file_path <- ("C:\\Users\\Kevon\\Downloads\\mturkfitbit_export_3.12.16-4.11.16\\Fitabase Data 3.12.16-4.11.16\\weightLogInfo_merged.csv") 
-
+```
 # Read the CSV file
+```
 dailyActivity_data <-  read.csv(dailyActivity_merged.csv)
 weightLogInfo_merged <- read_csv("C:\\Users\\Kevon\\Downloads\\mturkfitbit_export_3.12.16-4.11.16\\Fitabase Data 3.12.16-4.11.16\\weightLogInfo_merged.csv")
+```
 
 # Preview files
+```
+ head(daily_activity_data)
+ head(weightLogInfo_merged)
+ ```
+![HeadActivity](https://github.com/Nallkevo/Case-study-Fitabase/blob/main/Screenshot%202024-11-18%20003202.png)
 
-![HeadWeightLoginInfo](https://github.com/Nallkevo/Case-study-Fitabase/blob/main/Screenshot%202024-11-18%20003202.png)
+![HeadWeightLoginInfo]((https://github.com/Nallkevo/Case-study-Fitabase/blob/main/Screenshot%202024-11-18%20005524.png))
+```
+  colnames(daily_activity_data)
+  colnames(weightLogInfo_merged)
+```
+![Dailyactivitydata](https://github.com/Nallkevo/Case-study-Fitabase/blob/main/Screenshot%202024-11-18%20071253.png)
 
-![HeadActivity]("C:\Users\Kevon\OneDrive\Pictures\Screenshots\Screenshot 2024-11-18 005524.png")
+  
 
 
  
