@@ -124,12 +124,14 @@ data_clean <- daily_activity_data %>%
   mutate(across(
     where(is.numeric), 
     ~ifelse(is.na(.), mean(., na.rm = TRUE), .)
-```
-
-# Replace NA with mean for numeric columns
-# Replace NA with "Unknown" for character columns (if any)
-  
-```
+  )) %>%
+  mutate(across(
+    where(is.character), 
+    ~ifelse(is.na(.), "Unknown", .)))
+data_clean1 <- weightLoginInfo%>%
+  mutate(across(
+    where(is.numeric), 
+    ~ifelse(is.na(.), mean(., na.rm = TRUE), .)
   )) %>%
   mutate(across(
     where(is.character), 
@@ -141,6 +143,8 @@ data_clean <- daily_activity_data %>%
 ```
 data_clean <- data_clean %>%
   drop()
+data_clean1<-data_clean1 %>%
+   drop()
 ```
 
 # Show cleaned data
@@ -148,10 +152,178 @@ data_clean <- data_clean %>%
 head(data_clean)
 data_clean <- daily_activity_data %>%
   mutate(Id= ifelse(is.na(Id), median(Id, na.rm = TRUE), Id))
+head(data_clean)
+data_clean <- weightLoginInfo %>%
+  mutate(Id= ifelse(is.na(Id), median(Id, na.rm = TRUE), Id))
+
+```
 # Remove duplicate rows
+```
 data_clean <- data_clean %>%
   distinct()
+data_clean<- data_clean %>%
+   distinct()
 ```
+# Merge data
+```
+merged_data <- inner_join(data_clean1, data_clean, by = "Id", relationship = "many-to-many")
+```
+
+# Check for duplicates
+```
+nrow(merged_data)
+```
+# Compare with original dataset to confirm duplicates were removed
+# Convert "ActivityDate" column to Date type if needed
+```
+merged_data<- merged_data %>%
+  mutate(ActivityDate = as.Date(ActivityDate, format = "%m/%d/%Y"))
+  ```
+
+# Check if the data types are correct
+```
+str(merged_data)
+```
+# Remove outliers for a specific column, e.g., TotalSteps
+```
+merged_data <- merged_data %>%
+  filter(TotalSteps <= quantile(TotalSteps, 0.95))
+  
+merged_data<-merged_data %>%
+  filter(Calories <= quantile(Calories, 0.95))
+  ```
+# Check the filtered dataset
+```
+summary(merged_data)
+```
+# Final check: View summary and structure
+```
+summary(merged_data)
+str(merged_data)
+```
+
+# Preview cleaned data
+```
+head(merged_data)
+```
+# Save the cleaned data as a CSV file
+```
+write.csv(merged_data, "cleaned_merged_data.csv", row.names = FALSE)
+getwd()
+merged_data <- read.csv("cleaned_merged_data.csv")
+```
+# Analyze data look for trends, and calculate summary statistics
+```
+data_clean %>%
+  summarise(across(where(is.numeric), list(mean = mean, sd = sd), na.rm = TRUE))
+```
+# Scatter plot with a trend line
+```
+ggplot(data = merged_data, aes(x = TotalSteps, y = Calories)) +
+  geom_point(color = "blue") + # Scatter plot
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  ```
+![Scatterplot](https://github.com/Nallkevo/Case-study-Fitabase/blob/main/Screenshot%202024-11-18%20103928.png)
+# This Shows a positive trendline between Calories and TotalSteps seems like the more steps you add on the daily bases helps your calorie rate.
+
+
+  # Trend line with confidence interval
+```
+  labs(
+    title = "Total Steps vs. Calories",
+    x = "Total Steps",
+    y = "Calories Burned"
+  ) +
+  theme_minimal()
+  ggplot(time_trends, aes(x = ActivityDate, y = Calories)) +
+      geom_col(fill = "blue") +
+      theme_minimal() +
+      labs(title = "Calories Over Time by Activity Date", x = "Activity Date", y = "Calories")
+      ```
+```
+![bargraph](https://github.com/Nallkevo/Case-study-Fitabase/blob/main/Screenshot%202024-11-18%20112535.png)
+  # Correlate
+      
+      ```
+    cor(merged_data$VeryActiveMinutes,merged_data$Calories)
+    ```
+  # 0.6930595 this shows that its positive trend
+  ```
+    cor(merged_data$SedentaryActiveDistance,merged_data$Calories)
+  ```
+  # -0.001368087 this shows that it is a negative trend between these colnames
+  ```
+ cor_matrix = cor(merged_data %>% select(where(is.numeric)), use = "complete.obs")
+    print(cor_matrix)
+    ```
+ # More visuals
+      ```
+    ggplot(merged_data, aes(x = TotalSteps, y = BMI)) +
+      geom_point() +
+      theme_minimal() + geom_smooth()
+     ```
+```
+![visuals](https://github.com/Nallkevo/Case-study-Fitabase/blob/main/Screenshot%202024-11-18%20110816.png)
+ # Aggregate data by date
+    ```
+    time_trends <- merged_data %>%
+      group_by(ActivityDate) %>%
+      summarise(Calories= sum(Calories, na.rm = TRUE))
+      ```
+    
+  # Line plot for trends
+    ```
+    ggplot(time_trends, aes(x = ActivityDate, y = Calories)) +
+      geom_col(fill = "blue") +
+      theme_minimal() +
+      labs(title = "Calories Over Time by Activity Date", x = "Activity Date", y = "Calories")
+      ```
+ ![lLineplot](https://github.com/Nallkevo/Case-study-Fitabase/blob/main/Screenshot%202024-11-18%20112535.png )
+ # Notice the trends customer is burning more calories towards the end of the week
+  # Group by category (e.g., activity type)
+    ```
+    segmented_data <- merged_data %>%
+      group_by(Id) %>%
+      summarise(AverageSteps = mean(TotalSteps, na.rm = TRUE))
+    ```
+    [
+  
+  # Bar plot of average steps by user
+    ```
+    ggplot(segmented_data, aes(x = Id, y = AverageSteps)) +
+      geom_bar(stat = "identity", fill = "orange") +
+      theme_minimal()
+      ```
+  ![Barplot](https://github.com/Nallkevo/Case-study-Fitabase/blob/main/Screenshot%202024-11-18%20113319.png) 
+  ## Step 6: Act 
+[Back to top](#introduction)
+<br>
+![womanrunning](https://github.com/Nallkevo/Case-study-Fitabase/blob/main/woman%20running.jpg)
+Insights Summary:
+About Bellabeat: Bellabeat is a cutting-edge company focused on creating tech-driven wellness products for women. By tracking and analyzing data related to activity, sleep, stress, and reproductive health, Bellabeat gives women the tools to better understand their health and habits. Since its founding in 2013, the company has rapidly emerged as a leader in wellness technology, helping users make informed decisions about their lifestyle.
+
+After analyzing the FitBit Fitness Tracker data, I’ve identified several key opportunities to strengthen Bellabeat's marketing strategy based on patterns in user behavior:
+
+Encourage More Active Lifestyles: The average daily step count across users is 7,638, which falls short of the CDC’s recommended 8,000 steps for optimal health. Studies show that taking 8,000 steps a day can reduce the risk of mortality by 51%, and 12,000 steps can lower the risk by 65%. Recommendation: Bellabeat can incentivize users to hit the 8,000-step goal by adding motivational prompts in the app, highlighting the benefits of maintaining a more active lifestyle.
+
+Promote Increased Activity Levels: Most users are classified as lightly active, but there’s a significant opportunity for Bellabeat to motivate them to reach higher activity levels. By adding a system that helps users gradually progress to more intense activity, Bellabeat can elevate user engagement. Recommendation: Introduce a tiered fitness challenge that encourages users to become "fairly active," with rewards and personalized tips that guide them through their fitness journey.
+
+Support Health and Nutrition Goals: Weight loss is a common goal for many users. To assist them, Bellabeat could offer tailored meal suggestions, such as low-calorie breakfast, lunch, and dinner options that align with users' activity levels and fitness objectives. Recommendation: Create a feature within the app that provides personalized meal plans or connects users to healthy eating resources to complement their workout routines.
+
+Leverage Weekend Trends: Data shows that users are most active on Saturdays and less so on Sundays. Bellabeat could use this information to create weekend-specific content that keeps users engaged and encourages them to stay active throughout the weekend. Recommendation: On Saturdays, prompt users with motivational reminders for outdoor activities like walking or jogging, and on Sundays, suggest light exercise or relaxation routines to maintain a balanced weekend activity level.
+
+These strategies will allow Bellabeat to not only encourage better health habits but also strengthen its relationship with users by providing them with actionable insights and personalized recommendations.
+
+
+
+
+
+
+
+  
+  
+    
+
 
 
 
